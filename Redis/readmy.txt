@@ -1,0 +1,47 @@
+docker pull redis
+Запустим контейнер Redis, но при этом используем аргумент -d:
+$ docker run --name myredis -d redis
+ чтобы увидеть вывод результатов из контейнера, можно воспользоваться командой docker logs
+Создаем новый контейнер для запуска в нем redis-cli и установить соединение между дву-
+мя контейнерами
+$ docker run --rm -it --link myredis:redis redis /bin/bash
+root@ca38735c5747:/data# redis-cli -h redis -p 6379
+redis:6379> ping
+PONG
+redis:6379> set "abc" 123
+OK
+redis:6379> get "abc"
+"123"
+redis:6379> exit
+root@ca38735c5747:/data# exit
+exit
+
+-----------------
+Volumes: два способа объясления:
+    VOLUME /host/dir:/container/dir
+    docker run -v /host/dir:/container/dir test/webserver
+
+---
+
+$ docker run --rm -it --link myredis:redis redis /bin/bash
+root@a1c4abf81f:/data# redis-cli -h redis -p 6379
+redis:6379> set "persistence" "test"
+#OK
+redis:6379> save
+#OK
+redis:6379> exit
+root@a1c4abf81f:/data# exit
+#exit
+$ docker run --rm --volumes-from myredis -v $(pwd)/backup:/backup \
+         debian cp /data/dump.rdb /backup/
+$ ls backup
+#dump.rdb
+
+
+$ docker stop myredis
+myredis
+$ docker rm -v myredis
+myredis
+
+docker rm $(docker ps -aq)
+docker system prune
