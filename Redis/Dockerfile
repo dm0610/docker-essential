@@ -1,7 +1,6 @@
 # Use an existing docker image as a base
-FROM centos
+FROM alpine
 # Download and install
-RUN yum update -y \
-    && yum install -y redis
+RUN apk add --update redis
 # Tell the image what to do when it starts
 CMD ["redis-server"]
